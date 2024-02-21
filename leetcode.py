@@ -40,3 +40,20 @@ def languagestat(username):
 
     except json.JSONDecodeError as e:
         return {"status":"error","message":"JSON Decode Error"}
+
+def skillstat(username):
+    query = {"query":""" query skillStats($username: String!) { matchedUser(username: $username) { tagProblemCounts { advanced { tagName tagSlug problemsSolved } intermediate { tagName tagSlug problemsSolved } fundamental { tagName tagSlug problemsSolved } } } } """, "variables":{"username":username}, "operationName":"skillStats" }
+
+    response = requests.post(url, headers=headers, json=query)
+    
+    if response.status_code != 200:
+        return {"status":"error","message":"Unknown Error","code":response.status_code}
+
+    try:
+        if response.json()["data"]["matchedUser"]:
+          return {"status":"ok","skillStats":response.json()["data"]["matchedUser"]}
+        return {"status":"error","profile":"No profile found"}
+
+    except json.JSONDecodeError as e:
+        return {"status":"error","message":"JSON Decode Error"}
+
