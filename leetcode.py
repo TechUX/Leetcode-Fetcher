@@ -127,3 +127,17 @@ def calandar(username):
 
     except json.JSONDecodeError as e:
         return {"status":"error","message":"JSON Decode Error"}
+
+def submissions(username):
+    query = {"query":""" query recentAcSubmissions($username: String!, $limit: Int!) { recentAcSubmissionList(username: $username, limit: $limit) { id title titleSlug timestamp } } ""","variables":{"username":username,"limit":20},"operationName":"recentAcSubmissions"}
+
+    response = requests.post(url, headers=headers, json=query)
+
+    if response.status_code != 200:
+        return {"status":"error","message":"Unknown Error","code":response.status_code}
+
+    try:
+        return {"status":"ok", "submissions":response.json()["data"]["recentAcSubmissionList"] }
+
+    except json.JSONDecodeError as e:
+        return {"status":"error","message":"JSON Decode Error"}
