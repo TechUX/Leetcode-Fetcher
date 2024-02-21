@@ -57,3 +57,36 @@ def skillstat(username):
     except json.JSONDecodeError as e:
         return {"status":"error","message":"JSON Decode Error"}
 
+def contestranking(username):
+    query = {"query":""" query userContestRankingInfo($username: String!) { userContestRanking(username: $username) { attendedContestsCount rating globalRanking totalParticipants topPercentage badge { name } } userContestRankingHistory(username: $username) { attended trendDirection problemsSolved totalProblems finishTimeInSeconds rating ranking contest { title startTime } } } """, "variables":{"username":username}, "operationName":"userContestRankingInfo"}
+
+    response = requests.post(url, headers=headers, json=query)
+
+    if response.status_code != 200:
+        return {"status":"error","message":"Unknown Error","code":response.status_code}
+
+    try:
+        if "errors" in response.json() and response.json()["errors"][0]["message"] == "User matching query does not exist." :
+          return {"status":"error","profile":"No profile found"}
+        return {"status":"ok","contestRanking":response.json()["data"]["userContestRanking"]}
+
+    except json.JSONDecodeError as e:
+        return {"status":"error","message":"JSON Decode Error"}
+
+def problemsolved(username):
+    query = {"query":""" query userProblemsSolved($username: String!) { allQuestionsCount { difficulty count } matchedUser(username: $username) { problemsSolvedBeatsStats { difficulty percentage } submitStatsGlobal { acSubmissionNum { difficulty count } } } } ""","variables":{"username":username},"operationName":"userProblemsSolved"}
+
+    response = requests.post(url, headers=headers, json=query)
+
+    if response.status_code != 200:
+        return {"status":"error","message":"Unknown Error","code":response.status_code}
+
+    try:
+        if "errors" in response.json() and response.json()["errors"][0]["message"] == "That user does not exist." :
+            return {"status":"error","profile":"No profile found"}
+
+        return {"status":"ok","problemSolved":{"submission":response.json()["data"]["matchedUser"]["submitStatsGlobal"]["acSubmissionNum"], "beats":response.json()["data"]["matchedUser"]["problemsSolvedBeatsStats"]}}
+
+    except json.JSONDecodeError as e:
+        return {"status":"error","message":"JSON Decode Error"}
+
