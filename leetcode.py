@@ -90,3 +90,40 @@ def problemsolved(username):
     except json.JSONDecodeError as e:
         return {"status":"error","message":"JSON Decode Error"}
 
+def badges(username):
+    query = {"query":""" query userBadges($username: String!) { matchedUser(username: $username) { badges { id name shortName displayName icon hoverText medal { slug config { iconGif iconGifBackground } } creationDate category } upcomingBadges { name icon progress } } } ""","variables":{"username":username},"operationName":"userBadges"}
+
+    response = requests.post(url, headers=headers, json=query)
+
+    if response.status_code != 200:
+        return {"status":"error","message":"Unknown Error","code":response.status_code}
+
+    try:
+        if response.json()["data"]["matchedUser"] :
+          return {"status":"ok", "badges": {
+                  "count":len(response.json()["data"]["matchedUser"]["badges"]),
+                  "badges":response.json()["data"]["matchedUser"]["badges"]},
+                "upcomingBadges":{
+                  "count": len(response.json()["data"]["matchedUser"]["upcomingBadges"]),
+                  "badges":response.json()["data"]["matchedUser"]["upcomingBadges"]}
+                }
+        return {"status":"error","profile":"No profile found"}
+
+    except json.JSONDecodeError as e:
+        return {"status":"error","message":"JSON Decode Error"}
+
+def calandar(username):
+    query = {"query":""" query userProfileCalendar($username: String!, $year: Int) { matchedUser(username: $username) { userCalendar(year: $year) { activeYears streak totalActiveDays } } } ""","variables":{"username":username},"operationName":"userProfileCalendar"}
+
+    response = requests.post(url, headers=headers, json=query)
+
+    if response.status_code != 200:
+        return {"status":"error","message":"Unknown Error","code":response.status_code}
+
+    try:
+        if response.json()["data"]["matchedUser"] :
+            return {"status":"ok", "calendar":response.json()["data"]["matchedUser"]["userCalendar"] }
+        return {"status":"error","profile":"No profile found"}
+
+    except json.JSONDecodeError as e:
+        return {"status":"error","message":"JSON Decode Error"}
