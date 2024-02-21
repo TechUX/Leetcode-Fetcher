@@ -25,3 +25,18 @@ def profile(username):
     except json.JSONDecodeError as e:
         return {"status":"error","message":"JSON Decode Error"}
     
+def languagestat(username):
+    query = {"query":""" query languageStats($username: String!) { matchedUser(username: $username) { languageProblemCount { languageName problemsSolved } } } """, "variables":{ "username":username }, "operationName":"languageStats" }
+
+    response = requests.post(url, headers=headers, json=query)
+
+    if response.status_code != 200:
+        return {"status":"error","message":"Unknown Error","code":response.status_code}
+
+    try:
+        if response.json()["data"]["matchedUser"]:
+          return {"status":"ok","languageStats":response.json()["data"]["matchedUser"]}
+        return {"status":"error","profile":"No profile found"}
+
+    except json.JSONDecodeError as e:
+        return {"status":"error","message":"JSON Decode Error"}
