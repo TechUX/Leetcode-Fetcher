@@ -16,11 +16,11 @@ def info(username):
 def userprofile(username):
     return profile(username)
 
-@app.route("/languagestat/<username>", methods=["GET"])
+@app.route("/languagestats/<username>", methods=["GET"])
 def langstat(username):
     return languagestat(username)
 
-@app.route("/skillstat/<username>", methods=["GET"])
+@app.route("/skillstats/<username>", methods=["GET"])
 def skill(username):
     return skillstat(username)
 
